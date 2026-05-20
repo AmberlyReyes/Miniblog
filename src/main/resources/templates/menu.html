@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Blog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f8f9fa;
+        }
+
+        .btn-custom {
+            width: 200px; /* Más ancho */
+            height: 100px; /* Más bajo */
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-custom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .blog-header {
+            line-height: 1;
+            border-bottom: 1px solid #000000;
+        }
+
+        .blog-header-logo {
+            font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+            font-size: 2.25rem;
+            text-decoration: none; /* This ensures there is no underline by default */
+        }
+
+        .blog-header-logo:hover {
+            text-decoration: none;
+        }
+
+        .main-content {
+            padding-top: 20px; /* Espacio entre el header y el contenido principal */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="col-4 pt-1">
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/registro">Registrar</a>
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO != null}"
+                   href="/menu">Menu</a>
+            </div>
+            <div class="col-4 text-center">
+                <a class="blog-header-logo text-dark">Mi Blog</a>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center">
+                <!-- Si no hay usuario en sesión, mostrar botón de Iniciar Sesión -->
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/formulario">Iniciar sesión</a>
+
+                <!-- Si hay usuario en sesión, mostrar mensaje de bienvenida y botón de Cerrar Sesión -->
+                <span th:if="${session.USUARIO != null}">
+                    <span th:text="'Bienvenido, '+${session.USUARIO.nombre}"></span>
+                    <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">Cerrar sesión</a>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-scroller py-1 mb-2">
+        <nav class="nav nav-underline justify-content-between">
+            <a th:each="etiqueta : ${ListEtiquetas}"
+               class="nav-item nav-link link-body-emphasis"
+               th:text="${etiqueta.etiqueta}"
+               th:href="'/blog/etiqueta/'+${etiqueta.etiqueta}">
+            </a>
+        </nav>
+    </div>
+</div>
+
+<main class="container main-content">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <a href="/blog/" class="btn btn-dark btn-custom">Blog</a>
+        </div>
+        <div class="col-auto">
+            <a href="/crud-articulo" class="btn btn-dark btn-custom">CRUD Artículos</a>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3">
+        <div class="col-auto">
+            <a href="/crud-simple" class="btn btn-dark btn-custom">CRUD Usuario</a>
+        </div>
+    </div>
+</main>
+
+<!-- Bootstrap JS (opcional, si necesitas funcionalidades de Bootstrap) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

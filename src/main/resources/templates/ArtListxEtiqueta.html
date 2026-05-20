@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Blog - Artículos por Etiqueta</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .blog-header {
+            line-height: 1;
+            border-bottom: 1px solid #000000;
+        }
+        .blog-header-logo {
+            font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+            font-size: 2.25rem;
+            text-decoration: none;
+        }
+        .blog-header-logo:hover {
+            text-decoration: none;
+        }
+        .blog-post-title {
+            font-size: 2.5rem;
+        }
+        .blog-post-meta {
+            font-family: "Arial", sans-serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: #555;
+        }
+        .articulo-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .articulo-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .articulo-card a {
+            color: #002503;
+            text-decoration: none;
+        }
+        .articulo-card a:hover {
+            text-decoration: underline;
+        }
+        .etiqueta-badge {
+            background-color: #f8f9fa;
+            color: #002503;
+            border: 1px solid #dee2e6;
+            margin-right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .page-link {
+            color: #002503;
+            border-color: #dee2e6;
+        }
+        .page-item.active .page-link {
+            background-color: #002503;
+            border-color: #002503;
+        }
+        .link {
+            text-decoration: none;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="col-4 pt-1">
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/registro">Registrar</a>
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO != null}"
+                   href="/crud-articulo/">Dashboard</a>
+            </div>
+            <div class="col-4 text-center">
+                <a href="/" class="blog-header-logo text-dark">Mi Blog</a>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center">
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/formulario">Iniciar sesión</a>
+                <span th:if="${session.USUARIO != null}">
+                    <span th:text="'Bienvenido, '+${session.USUARIO.nombre}"></span>
+                    <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">Cerrar sesión</a>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-scroller py-1 mb-2">
+        <nav class="nav nav-underline justify-content-between">
+            <a th:each="etiqueta : ${ListEtiquetas}"
+               class="nav-item nav-link link-body-emphasis"
+               th:text="${etiqueta.etiqueta}"
+               th:href="'/blog/etiqueta/'+${etiqueta.etiqueta}">
+            </a>
+        </nav>
+    </div>
+</div>
+
+<main class="container">
+    <!-- Encabezado de la etiqueta -->
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark" id="encabezado-etiqueta">
+        <div class="col-md-6 px-0">
+            <h1 class="display-4 fst-italic" id="titulo-etiqueta">Artículos sobre: <span id="nombre-etiqueta"></span></h1>
+            <p class="lead my-3">Explora todos los artículos relacionados con esta temática.</p>
+        </div>
+    </div>
+
+    <!-- Listado de artículos -->
+    <div id="articulos" class="row mb-2">
+        <!-- Los artículos se cargarán aquí dinámicamente -->
+    </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center" id="paginacion">
+            <li class="page-item" id="anterior">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <div id="numerosPagina" class="d-flex"></div>
+            <li class="page-item" id="siguiente">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let paginaActual = 1;
+        let totalPaginas = 1;
+        let etiquetaActual = '';
+
+        async function cargarArticulos(pagina) {
+            try {
+                const pathSegments = window.location.pathname.split('/');
+                const etiquetaIndex = pathSegments.indexOf('etiqueta');
+                etiquetaActual = etiquetaIndex !== -1 ? decodeURIComponent(pathSegments[etiquetaIndex + 1]) : '';
+
+                // Actualizar el encabezado con la etiqueta
+                if (etiquetaActual) {
+                    document.getElementById('nombre-etiqueta').textContent = etiquetaActual;
+                }
+
+                const url = etiquetaActual ? `/art?etiqueta=${encodeURIComponent(etiquetaActual)}&pagina=${pagina}` : `/art?pagina=${pagina}`;
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Error al cargar artículos: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const articulos = data.articulos;
+                const totalArticulos = data.totalArticulos;
+                totalPaginas = Math.ceil(totalArticulos / 5);
+
+                const contenedor = document.getElementById('articulos');
+                if (!contenedor) return;
+
+                contenedor.innerHTML = '';
+
+                articulos.forEach(articulo => {
+                    const contenidoLimitado = articulo.cuerpo ? articulo.cuerpo.substring(0, 200) + "..." : "Sin contenido";
+                    const etiquetas = articulo.listaEtiquetas || [];
+                    const fechaFormateada = formatearFecha(articulo.fecha);
+
+                    // Crear badges para etiquetas
+                    let etiquetasHTML = '';
+                    etiquetas.forEach(etiqueta => {
+                        etiquetasHTML += `<span class="etiqueta-badge">${etiqueta.etiqueta}</span>`;
+                    });
+
+                    const articuloHTML = `
+                        <div class="col-md-6">
+                            <div class="articulo-card g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                                <div class="col p-4 d-flex flex-column position-static">
+                                    <h3 class="mb-0">${articulo.titulo}</h3>
+                                    <div class="mb-1 text-muted">${fechaFormateada}</div>
+                                    <p class="card-text mb-auto">${contenidoLimitado}</p>
+                                    <a href="/blog/articulo/${articulo.id}" class="stretched-link">Continuar leyendo</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    contenedor.innerHTML += articuloHTML;
+                });
+
+                actualizarPaginacion(pagina);
+
+            } catch (error) {
+                console.error("Error en cargarArticulos:", error);
+                document.getElementById('articulos').innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">Error al cargar los artículos: ${error.message}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return "Fecha desconocida";
+            return new Date(fecha).toLocaleDateString('es-ES', {
+                weekday: 'short',
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function actualizarPaginacion(pagina) {
+            const numerosPagina = document.getElementById('numerosPagina');
+            numerosPagina.innerHTML = '';
+
+            // Mostrar máximo 5 números de página alrededor de la actual
+            const inicio = Math.max(1, pagina - 2);
+            const fin = Math.min(totalPaginas, pagina + 2);
+
+            for (let i = inicio; i <= fin; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === pagina ? 'active' : ''}`;
+
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    paginaActual = i;
+                    cargarArticulos(paginaActual);
+                });
+
+                li.appendChild(a);
+                numerosPagina.appendChild(li);
+            }
+
+            document.getElementById('anterior').style.display = pagina > 1 ? 'block' : 'none';
+            document.getElementById('siguiente').style.display = pagina < totalPaginas ? 'block' : 'none';
+        }
+
+        // Eventos
+        document.getElementById('anterior').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (paginaActual > 1) {
+                paginaActual--;
+                cargarArticulos(paginaActual);
+            }
+        });
+
+        document.getElementById('siguiente').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                cargarArticulos(paginaActual);
+            }
+        });
+
+        // Inicialización
+        window.onload = () => {
+            cargarArticulos(paginaActual);
+        };
+        /*]]>*/
+    </script>
+</main>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

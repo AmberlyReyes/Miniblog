@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo}">Chat UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            background: black;
+            color: white;
+        }
+        .sidebarElement {
+            display: block;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .sidebarElement.active {
+            background: white;
+            color: black;
+        }
+
+        .sidebarElement:hover{
+            background: #535353;
+            color: #ffffff;
+        }
+        .dashTitle {
+            display: block;
+            color: white;
+            text-decoration: none;
+            background: #000000;
+            padding: 20px;
+            font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+            font-size: 2.25rem;
+        }
+        .chat-container {
+            margin-left: 250px; /* Same as sidebar width */
+            background: white;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+            width: calc(100vw - 250px); /* Take the full width minus the sidebar */
+
+        }
+        .chat-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            align-items: flex-start;
+            width: 100%;
+        }
+        .chat-bubble {
+            background: #f1f1f1;
+            padding: 15px 20px;
+            border-radius: 15px;
+            width: 100%;
+            position: relative;
+        }
+        .chat-bubble strong {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+        }
+        .chat-bubble .date {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .chat-bubble p {
+            margin-top: 25px;
+            padding: 5px;
+        }
+
+        .btn-danger{
+            position: absolute;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            transform: scale(1.05);
+            margin-bottom: 20px;
+            right: 20px;
+            bottom: 1px;
+
+        }
+
+        .btn-danger:hover{
+            transform: scale(1.15);
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar" >
+
+        <h2> <a href="/" class="dashTitle">Mi Blog</a></h2>
+        <a href="/crud-chats" class="active sidebarElement">Chats</a>
+        <a href="/crud-articulo" class=" sidebarElement">Artículos</a>
+        <a href="/crud-simple" class=" sidebarElement">Usuarios</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="chat-container">
+        <div class="jumbotron">
+            <h1 class="display-4" th:text="${titulo}">....</h1>
+        </div>
+
+        <div th:each="chat : ${lista}">
+            <div class="chat-item">
+                <div class="chat-bubble">
+                    <strong>
+                        <a class="text-black text-decoration-none" th:href="'/crud-chats/'+${chat.id}" th:text="${chat.nombre}">Nombre</a>
+                    </strong>
+                    <span th:datetime="${chat.fecha}" class="date">Fecha</span>
+                    <p th:text="${chat.newMessage} ? 'Nuevo Mensaje!!' : 'Estas al dia!!'">No hay mensajes nuevos</p>
+                    <a th:href="'/crud-chats/eliminar/'+${chat.id}" class="btn btn-danger btn-sm">Eliminar</a>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

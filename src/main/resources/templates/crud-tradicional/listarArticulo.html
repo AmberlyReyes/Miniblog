@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/crud-tradicional/plantilla.html::head">
+    <title th:text="${titulo}">Listar Articulos</title>
+</head>
+<body>
+<div class="container">
+    <div th:replace="/crud-tradicional/plantilla.html::header"></div>
+    <div style="color:white">.</div>
+
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${titulo}">....</h1>
+        <p class="lead">Listado de Usuarios</p>
+    </div>
+    <div>
+        <a href="/crud-articulo/crear" class="btn btn-primary">Nuevo Articulo</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Titulo</th>
+            <th scope="col">Etiquetas</th>
+            <th scope="col">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="articulo : ${lista}">
+            <th scope="row">
+                <a th:text="${articulo.id}" th:href="'/crud-articulo/visualizar/'+${articulo.id}"/>
+            </th>
+            <td th:text="${articulo.titulo}">Nombre</td>
+            <td>
+        <span th:each="etiqueta : ${articulo.listaEtiquetas}" class="badge bg-info">
+            <span th:text="${etiqueta.etiqueta}"></span>
+        </span>
+            </td>
+            <td>
+                <a th:href="'/crud-articulo/editar/'+${articulo.id}" class="btn btn-secondary btn-sm">Editar</a> |
+                <a th:href="'/crud-articulo/eliminar/'+${articulo.id}" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- incluyendo la parte de javascript del template -->
+<div th:replace="/crud-tradicional/plantilla.html::javascript"></div>
+
+</body>
+</html>

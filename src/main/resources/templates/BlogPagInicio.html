@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Blog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Estilos personalizados -->
+    <style>
+
+        .blog-header {
+            line-height: 1;
+            border-bottom: 1px solid #000000;
+        }
+
+        .blog-header-logo {
+            font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+            font-size: 2.25rem;
+            text-decoration: none; /* This ensures there is no underline by default */
+        }
+
+        .blog-header-logo:hover {
+            text-decoration: none;
+        }
+
+        .blog-post-title {
+            font-size: 2.5rem;
+        }
+
+        .blog-post-meta {
+            font-family: "Arial", sans-serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: #555;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+            gap: 20px; /* Espacio entre artículos */
+            max-height: 1200px; /* Ajusta según el número de filas */
+            overflow-y: auto; /* Scroll si hay muchos artículos */
+        }
+
+        .articulo-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f9f9f9;
+        }
+
+        .articulo-card h3 {
+            margin-top: 0;
+        }
+
+        .articulo-card a {
+            color: #002503;
+            text-decoration: none;
+        }
+
+        .articulo-card a:hover {
+            text-decoration: underline;
+        }
+
+        .link{
+            text-decoration: none;
+        }
+        .link:hover{
+            text-decoration: underline;
+        }
+
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
+
+        .message-bubble.user {
+            background: black; /* Fondo negro */
+            color: white; /* Texto blanco */
+            margin-left: auto; /* Alinea a la derecha */
+            text-align: right;
+        }
+
+        .message-bubble.admin {
+            background: #f1f1f1; /* Fondo gris claro */
+            color: black; /* Texto negro */
+            margin-right: auto; /* Alinea a la izquierda */
+            text-align: left;
+        }
+        /* Estilos para la paginación */
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .page-link {
+            color: white;
+            background-color: black;
+            border-color: black;
+            padding: 0.5rem 0.75rem;
+            margin: 0 2px;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .page-link:hover {
+            background-color: #333;
+            border-color: #333;
+            color: white;
+        }
+
+        .page-item.active .page-link {
+            background-color: gray;
+            border-color: gray;
+            color: white;
+        }
+
+        .page-item:not(.active) .page-link:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="col-4 pt-1">
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/registro">Registrar</a>
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO != null}"
+                   href="/crud-articulo/">Dashboard</a>
+            </div>
+            <div class="col-4 text-center">
+                <a href="/" class="blog-header-logo text-dark">Mi Blog</a>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center">
+                <a class="btn btn-sm btn-outline-secondary" th:if="${session.USUARIO == null}"
+                   href="/formulario">Iniciar sesión</a>
+                <span
+                        th:if="${session.USUARIO != null}"><span
+                        th:text="'Bienvenido, '+${session.USUARIO.nombre}"></span>
+                    <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">Cerrar sesión</a>
+
+                </span>
+            </div>
+        </div>
+    </header>
+
+
+    <div class="nav-scroller py-1 mb-2">
+        <nav class="nav nav-underline justify-content-between">
+            <a th:each="etiqueta : ${ListEtiquetas}"
+               class="nav-item nav-link link-body-emphasis"
+               th:text="${etiqueta.etiqueta}"
+               th:href="'/blog/etiqueta/'+${etiqueta.etiqueta}">
+            </a>
+        </nav>
+    </div>
+</div>
+
+<main class="container">
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+        <div class="col-md-6 px-0">
+            <h1 class="display-4 fst-italic" th:text="${AriculoDestacado.titulo}">Título de la publicación
+                destacada</h1>
+            <strong class=" d-inline-block mb-4 text-white" th:text="${ArtEti}">Mundo</strong>
+            <p class="lead my-3" th:text="${ArtDesCuerpo}">Múltiples líneas de texto que forman la introducción,
+                informando a nuevos lectores rápida y eficientemente sobre lo más interesante de este contenido.</p>
+            <p class="lead mb-0 "><a th:href="'/blog/articulo/'+${AriculoDestacado.id}"
+                                    class="link text-white fw-bold">Continuar leyendo...</a></p>
+        </div>
+    </div>
+    <div id="articulos" class="grid-container">
+        <!-- Los artículos se cargarán aquí dinámicamente -->
+    </div>
+
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center" id="paginacion">
+            <li class="page-item" id="anterior">
+                <a class="page-link" href="#" aria-label="Previous" style="display: none;">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <div id="numerosPagina" class="d-flex"></div>
+            <li class="page-item" id="siguiente">
+                <a class="page-link" href="#" aria-label="Next" style="display: none;">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <script th:inline="javascript">
+
+        /*<![CDATA[*/
+let paginaActual = 1;
+let totalPaginas = 1;
+
+async function cargarArticulos(pagina) {
+    try {
+        const pathSegments = window.location.pathname.split('/');
+        const etiquetaIndex = pathSegments.indexOf('etiqueta');
+        const etiqueta = etiquetaIndex !== -1 ? pathSegments[etiquetaIndex + 1] : null;
+
+        // Construir la URL de la API con paginación
+        const url = etiqueta ? `/art?etiqueta=${etiqueta}&pagina=${pagina}` : `/art?pagina=${pagina}`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error al cargar artículos: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const articulos = data.articulos;
+        const totalArticulos = data.totalArticulos; // Obtener el total de artículos
+
+        // Calcular el total de páginas
+        totalPaginas = Math.ceil(totalArticulos / 5); // 5 artículos por página
+
+        // Agregar artículos al contenedor
+        const contenedor = document.getElementById('articulos');
+        if (!contenedor) return;
+
+        contenedor.innerHTML = ''; // Limpiar el contenedor antes de agregar nuevos artículos
+
+        articulos.forEach(articulo => {
+            const contenidoLimitado = articulo.cuerpo ? articulo.cuerpo.substring(0, 100) + "..." : "Sin contenido";
+            const etiquetas = articulo.listaEtiquetas || [];
+            const fechaFormateada = formatearFecha(articulo.fecha);
+            const etiquetasHTML = etiquetas.slice(0, 2).map(etiqueta => etiqueta.etiqueta).join(', ');
+
+            const articuloHTML = `
+                <div class="articulo-card">
+                    <strong class="d-inline-block mb-2 text-dark">${etiquetasHTML}</strong>
+                    <h3>${articulo.titulo}</h3>
+                    <div class="mb-1 text-muted">${fechaFormateada}</div>
+                    <p>${contenidoLimitado}</p>
+                    <a class="text-primary" href="/blog/articulo/${articulo.id}">Continuar leyendo</a>
+                </div>
+            `;
+
+            contenedor.innerHTML += articuloHTML;
+        });
+
+        // Actualizar la paginación numérica
+        actualizarPaginacion(pagina);
+
+    } catch (error) {
+        console.error("Error en cargarArticulos:", error);
+        document.getElementById('articulos').innerHTML = `<p class="text-danger">Error al cargar los artículos: ${error.message}</p>`;
+    }
+}
+
+function formatearFecha(fecha) {
+    if (!fecha) return "Fecha desconocida";
+    return new Date(fecha).toLocaleDateString('es-ES', {
+        weekday: 'short',
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric'
+    });
+}
+
+function actualizarPaginacion(pagina) {
+    const numerosPagina = document.getElementById('numerosPagina');
+    numerosPagina.innerHTML = '';
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === pagina ? 'active' : ''}`;
+
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = '#';
+        a.textContent = i;
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            paginaActual = i;
+            cargarArticulos(paginaActual);
+        });
+
+        li.appendChild(a);
+        numerosPagina.appendChild(li);
+    }
+
+    document.getElementById('anterior').style.display = pagina > 1 ? 'block' : 'none';
+    document.getElementById('siguiente').style.display = pagina < totalPaginas ? 'block' : 'none';
+}
+
+// Llamar a cargarArticulos() en la carga inicial
+window.onload = () => {
+    console.log("Página cargada, llamando a cargarArticulos...");
+    cargarArticulos(paginaActual);
+};
+
+// Evento para el botón "Anterior"
+document.getElementById('anterior').addEventListener('click', () => {
+    if (paginaActual > 1) {
+        paginaActual--;
+        cargarArticulos(paginaActual);
+    }
+});
+
+// Evento para el botón "Siguiente"
+document.getElementById('siguiente').addEventListener('click', () => {
+    if (paginaActual < totalPaginas) {
+        paginaActual++;
+        cargarArticulos(paginaActual);
+    }
+});
+        /*]]>*/
+    </script>
+
+</main>
+<div class="chat-widget position-fixed bottom-0 end-0 m-3">
+    <button class="btn btn-dark bg-dark rounded-circle p-3" id="chat-btn">
+        <i class="fa-solid fa-comments"></i>
+    </button>
+    <div class="chat-box card shadow d-none" id="chat-box" style="width: 300px; height: 400px;">
+        <div class="text-white bg-dark card-header d-flex justify-content-between">
+            Chat
+            <button class="btn btn-sm btn-close btn-close-white" id="close-chat"></button>
+        </div>
+        <div class="card-body overflow-auto" id="chat-body">
+            <div th:if="${session.CHAT == null}">
+                <div th:if="${session.USUARIO == null}">
+                    <p>Por favor, ingresa tu nombre:</p>
+                    <form enctype="application/x-www-form-urlencoded" method="post" action="/newchat">
+                        <label>
+                            <input type="text" class="form-control mb-2" name="name" placeholder="Tu nombre..." required />
+                        </label>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
+                <div th:if="${session.USUARIO != null}">
+                    <form enctype="application/x-www-form-urlencoded" method="post" action="/newchat">
+                        <input type="hidden" th:value="${session.USUARIO.nombre}" name="name" />
+
+                        <button type="submit" class="btn btn-primary">Crear chat?</button>
+                    </form>
+                </div>
+            </div>
+            <div th:if="${session.CHAT != null}">
+                <p>Bienvenido, <span th:text="${session.CHAT.nombre}"></span>!</p>
+                <p>¡Hola! ¿En qué puedo ayudarte?</p>
+                <div id="chat-messages" th:attr="data-chatid=${session.CHAT.id}"></div>
+
+            </div>
+        </div>
+        <div th:if="${session.CHAT != null}">
+            <form id="chatmensaje" enctype="application/x-www-form-urlencoded" method="post" action="/send" class="bg-dark card-footer d-flex">
+                <input type="hidden" th:value="${session.CHAT.id}" name="chat"/>
+                <label>
+                    <input type="text" class="form-control me-2" placeholder="Escribe tu mensaje..." name="mensaje"/>
+                </label>
+                <button class="btn btn-success" id="send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+<script src="/js/chatjs.js"></script>
+
+
+</body>
+</html>

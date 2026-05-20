@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="${titulo}">Creación de Artículo</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Estilos personalizados -->
+    <style>
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .form-container h2 {
+            color: #000000;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-input {
+            position: relative;
+        }
+
+        .icon-input i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #000000;
+        }
+
+        .icon-input input,
+        .icon-input textarea {
+            padding-left: 40px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            min-height: 40px;
+        }
+
+        .btn-custom {
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px
+        }
+
+        .btn-custom:hover {
+            background-color: #323232;
+            transform: scale(1.05);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2><i class="fas fa-file-alt"></i> <span th:text="${titulo}">Creación de Artículo</span></h2>
+
+    <form enctype="application/x-www-form-urlencoded" method="post" th:action="@{${accion}}">
+        <input type="hidden" th:value="${articulo} ? ${articulo.id} : ''" name="id"/>
+
+        <!-- Título -->
+        <div class="form-group icon-input">
+            <i class="fas fa-heading"></i>
+            <input th:readonly="${visualizar}" th:value="${articulo} ? ${articulo.titulo} : ''"
+                   type="text" name="titulo" class="form-control" placeholder="Título del artículo" required>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="form-group icon-input">
+            <i class="fas fa-align-left"></i>
+            <textarea th:readonly="${visualizar}" name="cuerpo" class="form-control" rows="5"
+                      placeholder="Contenido del artículo" th:text="${articulo} ? ${articulo.cuerpo} : ''"
+                      required></textarea>
+        </div>
+
+        <!-- Autor -->
+        <div class="form-group icon-input">
+            <i class="fas fa-user-edit"></i>
+            <input th:readonly="${visualizar}" th:value="${articulo} ? ${autor.username} : ${session.USUARIO.username}"
+                   type="text" name="autor" class="form-control" placeholder="Autor del artículo" readonly>
+        </div>
+
+        <!-- Etiquetas -->
+        <div class="form-group icon-input">
+            <i class="fas fa-tags"></i>
+            <textarea th:readonly="${visualizar}" name="listaEtiquetas" class="form-control" rows="2"
+                      placeholder="Etiquetas (separadas por comas)" th:text="${articulo} ? ${listaEtiquetas} : ''"></textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-group text-center">
+            <button th:if="${!visualizar}" type="submit" class="btn btn-custom">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <a href="/crud-articulo/" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap JS y dependencias -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

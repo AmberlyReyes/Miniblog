@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/crud-tradicional/plantilla.html::head">
+    <title th:text="${titulo}">Listar Usuarios</title>
+</head>
+<body>
+
+<div class="container">
+    <div th:replace="/crud-tradicional/plantilla.html::header"> </div>
+    <div style="color:white">. </div>
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${titulo}">....</h1>
+        <p class="lead">Listado de Usuarios</p>
+    </div>
+
+    <a href="/crud-simple/crear" class="btn btn-primary">Nuevo Usuario</a>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Roles</th>
+            <th scope="col">Foto</th>
+            <th scope="col">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="usuario : ${lista}">
+            <th scope="row">
+                <a th:text="${usuario.username}" th:href="'/crud-simple/visualizar/'+${usuario.username}"/>
+            </th>
+            <td th:text="${usuario.nombre}">Nombre</td>
+            <td>
+                <span th:if="${usuario.administrador}" class="badge bg-primary">Administrador</span>
+                <span th:if="${usuario.autor}" class="badge bg-success">Autor</span>
+            </td>
+            <td>
+                <img th:if="${usuario.foto != null}"
+                     th:src="'data:' + ${usuario.foto.mimeType} + ';base64,' + ${usuario.foto.fotoBase64}" alt="Foto de perfil" style="width: 50px; height: 50px; border-radius: 50%;"/>
+                <span th:unless="${usuario.foto != null}">...</span>
+            </td>            <td>
+                <a th:href="'/crud-simple/editar/'+${usuario.username}" class="btn btn-secondary btn-sm">Editar</a> |
+                <a th:href="'/crud-simple/eliminar/'+${usuario.username}" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- incluyendo la parte de javascript del template -->
+<div th:replace="/crud-tradicional/plantilla.html::javascript"></div>
+
+</body>
+</html>

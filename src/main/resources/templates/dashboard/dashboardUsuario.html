@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${titulo}">Chat UI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    .sidebar {
+      position: fixed;
+      width: 250px;
+      height: 100vh;
+      background: black;
+      color: white;
+    }
+    .sidebarElement {
+      display: block;
+      color: white;
+      padding: 10px;
+      text-decoration: none;
+    }
+    .sidebarElement.active {
+      background: white;
+      color: black;
+    }
+
+    .sidebarElement:hover{
+      background: #535353;
+      color: #ffffff;
+    }
+    .dashTitle {
+      display: block;
+      color: white;
+      text-decoration: none;
+      background: #000000;
+      padding: 20px;
+      font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+      font-size: 2.25rem;
+
+    }
+    .chat-container {
+      margin-left: 250px; /* Same as sidebar width */
+      background: white;
+      padding: 20px;
+      height: 100vh;
+      overflow-y: auto;
+      width: calc(100vw - 250px); /* Take the full width minus the sidebar */
+
+    }
+    .chat-item {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .chat-bubble {
+      background: #f1f1f1;
+      padding: 15px 20px;
+      border-radius: 15px;
+      width: 100%;
+      position: relative;
+    }
+    .chat-bubble strong {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+    }
+    .chat-bubble .date {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 14px;
+    }
+    .chat-bubble p {
+      margin-top: 25px;
+      padding: 5px;
+    }
+
+    .btn-primary{
+      background: black;
+      transition: all 0.3s ease;
+      padding: 10px 20px;
+      transform: scale(1.05);
+
+    }
+
+    .btn-primary:hover{
+      background-color: #323232;
+      transform: scale(1.15);
+      color: white;
+    }
+
+    /*.popup{
+        position: fixed;
+        bottom: 10px;
+        right: 20px;
+        font-size: 14px;
+
+    }*/
+
+  </style>
+</head>
+<body>
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar" >
+
+    <h2> <a href="/" class="dashTitle">Mi Blog</a></h2>
+    <a href="/crud-chats" class="sidebarElement">Chats</a>
+    <a href="/crud-articulo" class="sidebarElement">Artículos</a>
+    <a href="/crud-simple" class="active sidebarElement">Usuarios</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="chat-container">
+    <div class="jumbotron">
+      <h1 class="display-4" th:text="${titulo}">....</h1>
+      <p class="lead">Listado de Usuarios</p>
+    </div>
+    <a href="/crud-simple/crear" class="btn btn-primary">Nuevo Usuario</a>
+
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th scope="col">Username</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Roles</th>
+        <th scope="col">Foto</th>
+        <th scope="col">Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="usuario : ${lista}">
+        <th scope="row">
+          <a class="text-black text-decoration-none" th:text="${usuario.username}" th:href="'/crud-simple/visualizar/'+${usuario.username}"></a>
+        </th>
+        <td th:text="${usuario.nombre}">Nombre</td>
+        <td>
+          <span th:if="${usuario.administrador}" class="badge bg-primary">Administrador</span>
+          <span th:if="${usuario.autor}" class="badge bg-success">Autor</span>
+        </td>
+        <td>
+          <img th:if="${usuario.foto != null}"
+               th:src="'data:' + ${usuario.foto.mimeType} + ';base64,' + ${usuario.foto.fotoBase64}" alt="Foto de perfil" style="width: 50px; height: 50px; border-radius: 50%;"/>
+          <span th:unless="${usuario.foto != null}">...</span>
+        </td>            <td>
+        <a th:href="'/crud-simple/editar/'+${usuario.username}" class="btn btn-secondary btn-sm">Editar</a> |
+        <a th:href="'/crud-simple/eliminar/'+${usuario.username}" class="btn btn-danger btn-sm">Eliminar</a>
+      </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

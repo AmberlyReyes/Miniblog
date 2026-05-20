@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${titulo}">...</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background:  #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .form-container h1 {
+            color: #000000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-custom {
+            background-color: #000000;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin: 10px
+        }
+
+        .btn-custom:hover {
+            background-color: #323232;
+            transform: scale(1.05);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h1><i class="fas fa-user"></i> <span th:text="${titulo}">...</span></h1>
+    <form enctype="multipart/form-data" method="post" th:action="@{${accion}}">
+        <div class="form-group">
+            <label for="usernameForm"><i class="fas fa-user"></i> Username</label>
+            <input th:readonly="${editaruser}" th:value="${usuario} ? ${usuario.username} : ''" type="text"
+                   name="username" class="form-control" id="usernameForm">
+        </div>
+        <div class="form-group">
+            <label for="nombreForm"><i class="fas fa-id-card"></i> Nombre</label>
+            <input th:readonly="${visualizar}" th:value="${usuario} ? ${usuario.nombre} : ''" type="text" name="nombre"
+                   class="form-control" id="nombreForm">
+        </div>
+        <div class="form-group">
+            <label for="passwordForm"><i class="fas fa-key"></i> Contraseña</label>
+            <input th:readonly="${visualizar}" th:value="${usuario} ? ${usuario.password} : ''" type="password"
+                   name="password" class="form-control" id="passwordForm">
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-user-shield"></i> Roles</label><br>
+            <input th:readonly="${visualizar}" type="checkbox" name="administrador"
+                   th:checked="${usuario != null} ? ${usuario.administrador} : false"> Administrador<br>
+            <input th:readonly="${visualizar}" type="checkbox" name="autor"
+                   th:checked="${usuario != null} ? ${usuario.autor} : false"> Autor
+        </div>
+        <div class="form-group">
+            <label for="fotoForm"><i class="fas fa-image"></i> Foto de Perfil</label>
+            <input th:disabled="${visualizar}" type="file" name="foto" class="form-control" id="fotoForm"
+                   accept=".jpg, .png, .jpeg">
+        </div>
+        <div class="form-group text-center">
+            <img th:if="${usuario} ? ${usuario.foto != null}"
+                 th:src="'data:' + ${usuario.foto.mimeType} + ';base64,' + ${usuario.foto.fotoBase64}"
+                 alt="Foto de perfil" class="rounded-circle" style="width: 80px; height: 80px;"/>
+            <small th:if="${usuario} ? ${usuario.foto != null}" class="form-text text-muted">Imagen actual</small>
+        </div>
+        <div class="form-group text-center">
+            <button th:if="${!visualizar}" type="submit" class="btn btn-custom">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <a href="/crud-simple/" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div th:replace="/crud-tradicional/plantilla.html::javascript"></div>
+</body>
+</html>
